@@ -19,24 +19,11 @@ export default function App() {
   const [editingTestId, setEditingTestId] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
-  const loggedIn = !!token;
-
   useEffect(() => {
-    if (loggedIn && view === 'login') {
+    if (token && view === 'login') {
       setView('dashboard');
     }
-  }, [loggedIn, view]);
-
-  if (!token) {
-    return <Login />;
-  }
-
-  const resolvedView: AppView = view;
-
-  const activeNav =
-    resolvedView === 'dashboard' || resolvedView === 'previewPublish'
-      ? 'Dashboard'
-      : 'Test creation';
+  }, [token, view]);
 
   const handleNav = useCallback((label: string) => {
     if (label === 'Dashboard') {
@@ -51,6 +38,17 @@ export default function App() {
       setView('chapterWise');
     }
   }, []);
+
+  if (!token) {
+    return <Login />;
+  }
+
+  const resolvedView: AppView = view;
+
+  const activeNav =
+    resolvedView === 'dashboard' || resolvedView === 'previewPublish'
+      ? 'Dashboard'
+      : 'Test creation';
 
   const navProps = { activeNav, onNav: handleNav };
 
