@@ -4,7 +4,7 @@ import Logo from '../components/Logo';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -68,7 +68,8 @@ export default function Login() {
               onChange={(e) => setUserId(e.target.value)}
               placeholder="Enter User ID"
               required
-              className="h-10 w-full rounded-lg border border-border bg-white px-3.5 text-sm text-text-main placeholder:text-placeholder outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              disabled={loading}
+              className="h-10 w-full rounded-lg border border-border bg-white px-3.5 text-sm text-text-main placeholder:text-placeholder outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50"
             />
           </div>
 
@@ -80,7 +81,8 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter Password"
               required
-              className="h-10 w-full rounded-lg border border-border bg-white px-3.5 text-sm text-text-main placeholder:text-placeholder outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              disabled={loading}
+              className="h-10 w-full rounded-lg border border-border bg-white px-3.5 text-sm text-text-main placeholder:text-placeholder outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50"
             />
           </div>
 
@@ -88,7 +90,9 @@ export default function Login() {
             <a href="#" className="text-xs font-medium text-primary hover:underline">Forgot password?</a>
           </div>
 
-          <Button type="submit" size="lg" className="w-full">LOGIN</Button>
+          <Button type="submit" size="lg" className="w-full" disabled={loading}>
+            {loading ? 'Logging in...' : 'LOGIN'}
+          </Button>
         </form>
       </div>
     </div>

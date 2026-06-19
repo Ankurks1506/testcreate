@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
 import ChapterWise from './screens/ChapterWise';
@@ -19,11 +19,19 @@ export default function App() {
   const [editingTestId, setEditingTestId] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
+  const loggedIn = !!token;
+
+  useEffect(() => {
+    if (loggedIn && view === 'login') {
+      setView('dashboard');
+    }
+  }, [loggedIn, view]);
+
   if (!token) {
     return <Login />;
   }
 
-  const resolvedView: AppView = token && view === 'login' ? 'dashboard' : view;
+  const resolvedView: AppView = view;
 
   const activeNav =
     resolvedView === 'dashboard' || resolvedView === 'previewPublish'

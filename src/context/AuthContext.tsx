@@ -33,7 +33,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, loading: true }));
     try {
       const res = await loginApi(userId, password);
-      const { token, user } = res.data.data;
+      const data = res.data?.data || res.data;
+      const { token, user } = data;
+      if (!token) throw new Error('Invalid response: missing token');
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       setState({ token, user, loading: false });
@@ -42,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const msg =
         err && typeof err === 'object' && 'response' in err
           ? (err as { response: { data: { message?: string } } }).response?.data?.message || 'Login failed'
-          : 'Login failed';
+          : err instanceof Error ? err.message : 'Login failed';
       throw new Error(msg);
     }
   }, []);
