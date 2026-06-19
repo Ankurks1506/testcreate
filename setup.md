@@ -7,28 +7,7 @@
 
 ## Steps
 
-### 1. Configure API Base URL
-
-The Vite dev server proxy (`vite.config.ts`) does **not** work in production. The app must know the production API URL at build time.
-
-**Option A — Using Vite env variable (recommended)**
-
-Create `.env.production` in the project root:
-
-```
-VITE_API_BASE=https://admin-moderator-backend-staging.up.railway.app
-```
-
-Then update `src/api/client.ts` to use it:
-
-```ts
-const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || '/api',
-  headers: { 'Content-Type': 'application/json' },
-});
-```
-
-**Option B — Using Vercel rewrites (no code change)**
+### 1. Create `vercel.json` for API proxying
 
 Create `vercel.json` in the project root:
 
@@ -41,7 +20,7 @@ Create `vercel.json` in the project root:
 }
 ```
 
-This proxies `/api/*` requests to the backend and serves `index.html` for all other paths (needed because Vite builds a SPA).
+This proxies `/api/*` requests to the backend server-side (no CORS issues) and serves `index.html` for all other paths (SPA fallback).
 
 ### 2. Deploy via Vercel CLI
 
@@ -67,13 +46,12 @@ vercel
    - **Framework**: Vite
    - **Build Command**: `npm run build` (or `tsc -b && vite build`)
    - **Output Directory**: `dist`
-5. Add environment variables if using Option A (e.g., `VITE_API_BASE`).
-6. Click **Deploy**.
+ 5. Click **Deploy**.
 
 ### 4. Post-Deployment
 
-- If using Option B (rewrites), Vercel will automatically create a `vercel.json` in your project — make sure it's committed.
-- If the API is on a different domain, ensure the backend allows CORS from your Vercel domain. Add your Vercel URL to the backend's allowed origins.
+- Vercel automatically detects `vercel.json` — ensure it's committed.
+- No CORS configuration needed — all API requests stay same-origin through the Vercel proxy.
 
 ## Troubleshooting
 
@@ -81,13 +59,12 @@ vercel
 | -------------------------------- | ------------------------------------------------- |
 | API calls fail with 404          | No rewrite rule — `/api/*` isn't proxied          |
 | Blank page / 404 on refresh      | Missing SPA fallback rewrite                      |
-| CORS errors in browser           | Backend doesn't allow your Vercel domain          |
+| CORS errors in browser           | `baseURL` is set to a full URL instead of `/api` — check client.ts |
 | 401 after login on fresh deploy  | `localStorage` is cleared; log in again           |
 
 ## Production Checklist
 
 - [ ] API base URL points to the production (not staging) backend
-- [ ] CORS headers on backend include your Vercel domain
 - [ ] `vercel.json` committed with SPA fallback (`/index.html`)
-- [ ] Environment variables configured in Vercel dashboard (if using env-based API URL)
+- [ ] No `VITE_API_BASE` env var set in Vercel dashboard (would bypass the proxy)
 - [ ] Test a full flow: login → create test → add questions → publish
